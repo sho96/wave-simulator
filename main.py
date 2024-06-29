@@ -479,7 +479,7 @@ direction_changing = Scene(
 
 
 
-scene = normal
+scene = direction_changing
 
 probes = scene.probes
 
@@ -489,17 +489,20 @@ dt = 1.25 ** -2
 prev_dt = dt
 frame_count = 0
 
-what_to_render = input('name to record: ')
-output_dir = f"{what_to_render}"
-if os.path.exists(output_dir):
-    if input("Directory already exists. enter 'y' to overwrite\n") != 'y':
-        sys.exit()
-else:
-    os.mkdir(output_dir)
-if not os.path.exists(f"{output_dir}/frames"):
-    os.mkdir(f"{output_dir}/frames")
-if not os.path.exists(f"{output_dir}/figs"):
-    os.mkdir(f"{output_dir}/figs")
+do_record = input('record? y/n\n') == 'y'
+what_to_render = "simulation"
+if do_record:
+    what_to_render = input('name to record: ')
+    output_dir = f"{what_to_render}"
+    if os.path.exists(output_dir):
+        if input("Directory already exists. enter 'y' to overwrite\n") != 'y':
+            sys.exit()
+    else:
+        os.mkdir(output_dir)
+    if not os.path.exists(f"{output_dir}/frames"):
+        os.mkdir(f"{output_dir}/frames")
+    if not os.path.exists(f"{output_dir}/figs"):
+        os.mkdir(f"{output_dir}/figs")
     
 min_value = -200
 max_value = 200
@@ -519,10 +522,11 @@ while True:
     result = gradient3.apply_to_grayscale_image(result)
     result = scene.draw_origin_points(result, render_value=True, scale=scale, radius=2, probe_max_value=probe_max_value)
     
-    cv2.imwrite(f"{output_dir}/frames/{frame_count}.png", result)
-    #probes.render_measurenments(probe_max_value)
-    probes.save_graph(f"{output_dir}/figs/{frame_count}.png", probe_max_value)
     probes.show_measurenments(probe_max_value)
+   
+    if do_record:
+        cv2.imwrite(f"{output_dir}/frames/{frame_count}.png", result)
+        probes.save_graph(f"{output_dir}/figs/{frame_count}.png", probe_max_value)
     
     cv2.imshow(what_to_render, result)
     waitkey_result = cv2.waitKeyEx(min(int(np.ceil(dt)), 1))
