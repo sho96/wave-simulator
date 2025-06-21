@@ -1,19 +1,20 @@
 import cv2
-import numpy as np
 import os
-from tqdm import tqdm
 
-source_folder = f"{input('source folder path: ')}"
+directory = "~ directory containing the frames ~"
+output_file = "output.mp4"
 
-images = [os.path.join(source_folder, f"{i + 1}.png") for i in range(len(os.listdir(source_folder)))]
-fps = 30
-resolution = cv2.imread(images[0]).shape[:2][::-1]
 
-fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
+images = [img for img in sorted(os.listdir(directory)) if img.endswith(".png")]
+images = sorted(images, key=lambda x: int(x.split('.')[0]))
+frame = cv2.imread(os.path.join(directory, images[0]))
+height, width, layers = frame.shape
 
-video = cv2.VideoWriter(input("output name: "), fourcc, fps, resolution)
+video = cv2.VideoWriter(output_file, cv2.VideoWriter_fourcc(*'mp4v'), 20.0, (width, height))
 
-for i, image in tqdm(enumerate(images), total=len(images)):
-    video.write(cv2.imread(image))
+for image in images:
+  print(image)
+  video.write(cv2.imread(os.path.join(directory, image)))
 
+cv2.destroyAllWindows()
 video.release()
